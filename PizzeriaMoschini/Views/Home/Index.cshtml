@@ -1,0 +1,43 @@
+﻿﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Pizzeria Moschini!</h1>
+</div>
+
+@if (User.IsInRole("Admin"))
+{
+    <div>
+        <ul>
+            <li>@Html.ActionLink("Manage Table Allocation", "Index", "Tables")</li>
+            <li>@Html.ActionLink("Generate Report", "Index", "Reservations")</li>
+            <li>@Html.ActionLink("Manage Staff", "Index", "Staffs")</li>
+        </ul>
+    </div>
+}
+else if (User.IsInRole("Staff"))
+{
+    <div>
+
+        <ul>
+            <li>@Html.ActionLink("Manage Table Allocation", "Index", "Tables")</li>
+            <li>@Html.ActionLink("Generate Report", "Index", "Reservations")</li>
+        </ul>
+    </div>
+}
+else
+{
+    <div>
+        <ul>
+            <li>@Html.ActionLink("Make a Reservation", "Create", "Reservations")</li>
+            <li>@Html.ActionLink("Manage Reservation", "Index", "Reservations")</li>
+        </ul>
+    </div>
+}
