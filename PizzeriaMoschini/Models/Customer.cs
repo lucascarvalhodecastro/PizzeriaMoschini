@@ -4,6 +4,7 @@ namespace PizzeriaMoschini.Models
 {
     public class Customer
     {
+        // Primary key for Customer entity
         [Key]
         [Display(Name = "Customer ID")]
         public int CustomerID { get; set; }
@@ -17,6 +18,7 @@ namespace PizzeriaMoschini.Models
 
         public string Email { get; set; }
 
+        // Navigation property for the reservations made by Customer
         public ICollection<Reservation> Reservations { get; set; }
     }
 }

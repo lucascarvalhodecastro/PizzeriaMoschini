@@ -2,7 +2,9 @@
 
 @{
     ViewData["Title"] = "Details";
-    bool isAdmin = ViewData["IsAdmin"] != null && (bool)ViewData["IsAdmin"];
+
+    // Check if user is Admin or Staff
+    bool isAdminOrStaff = User.IsInRole("Admin") || User.IsInRole("Staff");
 }
 
 <h1>Details</h1>
@@ -30,7 +32,7 @@
             @Html.DisplayFor(model => model.NumberOfGuests)
         </dd>
 
-        @if (isAdmin)
+        @if (isAdminOrStaff)
         {
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.Customer)

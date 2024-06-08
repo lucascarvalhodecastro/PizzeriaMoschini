@@ -1,10 +1,22 @@
 ﻿@model IEnumerable<PizzeriaMoschini.Models.Reservation>
+
 @{
     ViewData["Title"] = "Reservations";
-    bool isAdmin = ViewData["IsAdmin"] != null && (bool)ViewData["IsAdmin"];
+
+    // Check if user is Admin or Staff
+
+    bool isAdminOrStaff = User.IsInRole("Admin") || User.IsInRole("Staff");
 }
 
 <h1>Reservations</h1>
+
+<!-- Display message depending on user action (confirmation, change or cancellation of reservation) -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
 
 <table class="table">
     <thead>
@@ -13,11 +25,12 @@
             <th>@Html.DisplayNameFor(model => model.First().TimeSlot)</th>
             <th>@Html.DisplayNameFor(model => model.First().NumberOfGuests)</th>
 
-            @if (isAdmin)
+            @if (isAdminOrStaff)
             {
                 <th>@Html.DisplayNameFor(model => model.First().Customer.Name)</th>
                 <th>@Html.DisplayNameFor(model => model.First().TableID)</th>
             }
+
             <th></th>
         </tr>
     </thead>
@@ -29,11 +42,12 @@
                 <td>@Html.DisplayFor(modelItem => item.TimeSlot)</td>
                 <td>@Html.DisplayFor(modelItem => item.NumberOfGuests)</td>
 
-                @if (isAdmin)
+                @if (isAdminOrStaff)
                 {
                     <td>@Html.DisplayFor(modelItem => item.Customer.Name)</td>
                     <td>@Html.DisplayFor(modelItem => item.TableID)</td>
                 }
+
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.ReservationID">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.ReservationID">Details</a> |

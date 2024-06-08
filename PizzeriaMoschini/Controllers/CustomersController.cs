@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,8 +15,11 @@ namespace PizzeriaMoschini.Controllers
     public class CustomersController : Controller
     {
         private readonly ApplicationDbContext _context;
+
+        // Dependency injection for accessing user management services
         private readonly UserManager<IdentityUser> _userManager;
 
+        // Initialize _context and _userManager fields with injected services
         public CustomersController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
@@ -23,9 +27,13 @@ namespace PizzeriaMoschini.Controllers
         }
 
         // GET: Customers
+        // Ensure only Admin and Staff can access Index view
+        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Customers.ToListAsync());
+            // Order customers by name alphabetically
+            var customers = await _context.Customers.OrderBy(c => c.Name).ToListAsync();
+            return View(customers);
         }
 
         // GET: Customers/Details/5
@@ -49,25 +57,31 @@ namespace PizzeriaMoschini.Controllers
         // GET: Customers/Create
         public async Task<IActionResult> Create()
         {
+            // Get logged in user
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
             {
+                // Redirect to login if user is not logged in
                 return Redirect("/Identity/Account/Login");
             }
 
+            // Check if the customer exists in database
             var existingCustomer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == user.Email);
 
             if (existingCustomer != null)
             {
+                // If the customer exists, redirect to reservation creation view
                 return RedirectToAction("Create", "Reservations");
             }
 
+            // Create new customer with user's email
             var customer = new Customer
             {
                 Email = user.Email
             };
 
+            // Return view with new customer
             return View(customer);
         }
 
@@ -78,19 +92,25 @@ namespace PizzeriaMoschini.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CustomerID,Name,Phone,Email")] Customer customer)
         {
+            // Get logged in user
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
             {
+                // Redirect to login if user is not logged in
                 return Redirect("/Identity/Account/Login");
             }
 
+            // Associate Customer with logged in user
             customer.Email = user.Email;
 
             if (ModelState.IsValid)
             {
+                // Add new customer to database
                 _context.Add(customer);
                 await _context.SaveChangesAsync();
+
+                // Redirect to reservation creation view
                 return RedirectToAction("Create", "Reservations");
             }
 
@@ -172,12 +192,29 @@ namespace PizzeriaMoschini.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var customer = await _context.Customers.FindAsync(id);
+
             if (customer != null)
             {
+                // Find user by email
+                var user = await _userManager.FindByEmailAsync(customer.Email);
+
+                if (user != null)
+                {
+                    // Delete user
+                    var result = await _userManager.DeleteAsync(user);
+
+                    if (!result.Succeeded)
+                    {
+                        return View(customer);
+                    }
+                }
+
+                // Remove Customer from database
                 _context.Customers.Remove(customer);
+
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

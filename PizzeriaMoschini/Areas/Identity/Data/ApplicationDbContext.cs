@@ -20,8 +20,26 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        // Customize the ASP.NET Identity model and override the defaults if needed.
-        // For example, you can rename the ASP.NET Identity table names and more.
-        // Add your customizations after calling base.OnModelCreating(builder);
+
+        // Configure relationship between Reservation and Customer
+        builder.Entity<Reservation>()
+                .HasOne(r => r.Customer)
+                .WithMany(c => c.Reservations)
+                .HasForeignKey(r => r.CustomerID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure relationship between Reservation and Table
+        builder.Entity<Reservation>()
+            .HasOne(r => r.Table)
+            .WithMany(t => t.Reservations)
+            .HasForeignKey(r => r.TableID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure relationship between Reservation and Staff
+        builder.Entity<Reservation>()
+            .HasOne(r => r.Staff)
+            .WithMany(s => s.Reservations)
+            .HasForeignKey(r => r.StaffID)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
