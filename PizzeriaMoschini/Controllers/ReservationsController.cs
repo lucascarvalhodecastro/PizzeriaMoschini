@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -121,14 +122,14 @@ namespace PizzeriaMoschini.Controllers
                 customer = new Customer
                 {
                     // Use Staff email as customer name
-                    Name = user.Email, 
+                    Name = user.Email,
                     Phone = "N/A",
                     Email = user.Email
                 };
 
                 // Save the customer if it does not exist
                 var existingCustomer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == customer.Email);
-                
+
                 if (existingCustomer == null)
                 {
                     _context.Customers.Add(customer);
@@ -190,13 +191,16 @@ namespace PizzeriaMoschini.Controllers
             }
 
             // Check if customer already has a reservation on this date 
-            var existingReservation = await _context.Reservations
+            if (!isAdminOrStaff)
+            {
+                var existingReservation = await _context.Reservations
                 .Where(r => r.CustomerID == reservation.CustomerID && r.ReservationDate == reservation.ReservationDate)
                 .FirstOrDefaultAsync();
 
-            if (existingReservation != null)
-            {
-                ModelState.AddModelError("ReservationDate", "Sorry about that, but you already have a reservation on this date. However, you are welcome to modify the time slot or the number of guests if needed.");
+                if (existingReservation != null)
+                {
+                    ModelState.AddModelError("ReservationDate", "Sorry about that, but you already have a reservation on this date. However, you are welcome to modify the time slot or the number of guests if needed.");
+                }
             }
 
             if (ModelState.IsValid)
@@ -319,14 +323,22 @@ namespace PizzeriaMoschini.Controllers
                 }
             }
 
+            // Get logged in user
+            var user = await _userManager.GetUserAsync(User);
+            var roles = await _userManager.GetRolesAsync(user);
+            bool isAdminOrStaff = roles.Contains("Admin") || roles.Contains("Staff");
+
             // Check if customer already has a reservation on the same date
-            var existingReservation = await _context.Reservations
+            if (!isAdminOrStaff)
+            {
+                var existingReservation = await _context.Reservations
                 .Where(r => r.CustomerID == reservation.CustomerID && r.ReservationDate == reservation.ReservationDate && r.ReservationID != reservation.ReservationID)
                 .FirstOrDefaultAsync();
 
-            if (existingReservation != null)
-            {
-                ModelState.AddModelError("ReservationDate", "Sorry about that, but you already have a reservation on this date. However, you are welcome to modify the time slot or the number of guests if needed.");
+                if (existingReservation != null)
+                {
+                    ModelState.AddModelError("ReservationDate", "Sorry about that, but you already have a reservation on this date. However, you are welcome to modify the time slot or the number of guests if needed.");
+                }
             }
 
             if (ModelState.IsValid)
@@ -342,8 +354,8 @@ namespace PizzeriaMoschini.Controllers
                         _context.Update(reservation);
                         await _context.SaveChangesAsync();
 
-                        var user = await _userManager.GetUserAsync(User);
-                        var roles = await _userManager.GetRolesAsync(user);
+                        user = await _userManager.GetUserAsync(User);
+                        roles = await _userManager.GetRolesAsync(user);
 
                         if (roles.Contains("Admin") || roles.Contains("Staff"))
                         {
