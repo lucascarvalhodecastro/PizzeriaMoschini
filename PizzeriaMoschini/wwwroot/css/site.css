@@ -1,22 +1,145 @@
+/* Set base font size and font family for entire document */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    font-family: 'Lato', sans-serif;
+    position: relative;
+    min-height: 100%;
 }
 
+/* Increase font size on larger screens */
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* Basic styling for body */
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    color: #333;
+    background: linear-gradient(to right, #f9f9f9, #f1f1f1);
 }
+
+/* Styling for header section */
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 0;
+}
+
+/* Styling for navigation links */
+.navbar-nav .nav-link {
+    color: white;
+    margin-right: 15px;
+    font-weight: bold;
+}
+
+    /* Change color of navigation links on hover */
+    .navbar-nav .nav-link:hover {
+        color: #1abc9c;
+    }
+
+/* Decrease the container width */
+.container {
+    max-width: 960px;
+}
+
+/* Styling for footer */
+footer {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    height: 60px;
+    text-align: center;
+}
+
+    footer p {
+        margin: 0;
+    }
+
+/* Styling for buttons */
+.btn {
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #1abc9c;
+    color: white;
+    border: none;
+}
+
+    /* Change button background color on hover */
+    .btn:hover {
+        background-color: #16a085;
+        color: white;
+    }
+
+    .btn:focus,
+    .btn:active:focus,
+    .btn-link.nav-link:focus,
+    .form-control:focus,
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #5a5a5a;
+    }
+
+/* Styling for form controls */
+.form-control {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Styling for tables */
+.table {
+    margin-top: 1rem;
+    background-color: #fff;
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #ddd;
+}
+
+    .table th, .table td {
+        padding: 0.75rem;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table th {
+        background-color: #ecf0f1;
+        color: #2c3e50;
+    }
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(44, 62, 80, 0.05);
+}
+
+/* Table responsiveness on small screens */
+@media (max-width: 768px) {
+    .table-responsive {
+        border: 0;
+        overflow-x: auto;
+    }
+}
+
+/* Styling for headings */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Lora', serif;
+    color: #2c3e50;
+}
+
+/* Styling for anchor tags */
+a {
+    color: #1abc9c;
+    text-decoration: none;
+}
+    /* Change anchor tag styling on hover */
+    a:hover {
+        color: #16a085;
+        text-decoration: underline;
+    }
