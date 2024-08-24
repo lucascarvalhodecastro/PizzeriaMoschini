@@ -72,7 +72,7 @@ namespace PizzeriaMoschini.Controllers
             if (ModelState.IsValid)
             {
                 // Create a new IdentityUser with provided email and password
-                var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+                var user = new IdentityUser { UserName = model.Email, Email = model.Email, EmailConfirmed = true };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
 

@@ -59,5 +59,13 @@
 </table>
 
 <div>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+
+    <!-- Show Clear Old Reservations button only for Admin or Staff -->
+    @if (isAdminOrStaff)
+    {
+        <form asp-action="ClearOldReservations" method="post" class="mb-3">
+            <button type="submit" class="btn btn-danger">Clear Old Reservations</button>
+        </form>
+    }
 </div>

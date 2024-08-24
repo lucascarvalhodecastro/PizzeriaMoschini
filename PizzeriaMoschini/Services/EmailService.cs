@@ -1,11 +1,12 @@
 ﻿using MailKit.Net.Smtp;
 using MimeKit;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Threading.Tasks;
 
 namespace PizzeriaMoschini.Services
 {
-    public class EmailService
+    public class EmailService : IEmailSender
     {
         // Configuration object to access app settings
         private readonly IConfiguration _configuration;

@@ -21,7 +21,7 @@ namespace PizzeriaMoschini.Models
         [Display(Name = "Table ID")]
         public int TableID { get; set; }
 
-        // Nullable foreign key for Staff entity
+        // Nullable foreign key for Staff entity (optional relationship)
         [ForeignKey("Staff")]
         [Display(Name = "Staff ID")]
         public int? StaffID { get; set; }

@@ -19,11 +19,15 @@ namespace PizzeriaMoschini.Controllers
         // Dependency injection for accessing user management services
         private readonly UserManager<IdentityUser> _userManager;
 
-        // Initialize _context and _userManager fields with injected services
-        public CustomersController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        // Dependency injection for accessing role management services
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        // Initialize _context, _userManager and _roleManager fields with injected services
+        public CustomersController(ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         // GET: Customers
@@ -31,8 +35,16 @@ namespace PizzeriaMoschini.Controllers
         [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> Index()
         {
+            // Get all Staff users
+            var staffRole = await _roleManager.FindByNameAsync("Staff");
+            var staffUsers = await _userManager.GetUsersInRoleAsync(staffRole.Name);
+
             // Order customers by name alphabetically
-            var customers = await _context.Customers.OrderBy(c => c.Name).ToListAsync();
+            var customers = await _context.Customers
+                .Where(c => !staffUsers.Select(s => s.Email).Contains(c.Email))
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
             return View(customers);
         }
 

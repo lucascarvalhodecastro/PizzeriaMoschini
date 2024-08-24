@@ -132,7 +132,13 @@ namespace PizzeriaMoschini.Areas.Identity.Pages.Account
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                $"<p>Hi there,</p>" +
+                "<p>Welcome to Pizzeria Moschini!</p>" + 
+                "<p>We're excited to have you with us.</p>" +
+                "<p>To get started, please confirm your email address:</p>" +
+                $"<p><a href='{HtmlEncoder.Default.Encode(callbackUrl)}' style='color: #1abc9c; text-decoration: none;'>Click here to confirm your email</a></p>" +
+                "<p>Thank you,</p>" +
+                "<p>Pizzeria Moschini</p>");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

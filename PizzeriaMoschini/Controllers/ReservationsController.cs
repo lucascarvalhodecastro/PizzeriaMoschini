@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PizzeriaMoschini.Data;
 using PizzeriaMoschini.Models;
-using PizzeriaMoschini.Services;
 
 namespace PizzeriaMoschini.Controllers
 {
@@ -19,14 +20,14 @@ namespace PizzeriaMoschini.Controllers
 
         // Dependency injection for accessing user management and email services
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly EmailService _emailService;
+        private readonly IEmailSender _emailSender;
 
         // Initialize _context, _userManager and _emailService fields with injected services
-        public ReservationsController(ApplicationDbContext context, UserManager<IdentityUser> userManager, EmailService emailService)
+        public ReservationsController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IEmailSender emailSender)
         {
             _context = context;
             _userManager = userManager;
-            _emailService = emailService;
+            _emailSender = emailSender;
         }
 
         // GET: Reservations
@@ -228,7 +229,7 @@ namespace PizzeriaMoschini.Controllers
                             // Send confirmation email
                             var subject = "Reservation Confirmation - Pizzeria Moschini";
                             var body = $"<p>Dear {customer.Name},</p><p>Your reservation has been confirmed for {reservation.ReservationDate.ToShortDateString()} at {reservation.TimeSlot}.</p><p>Number of Guests: {reservation.NumberOfGuests}</p><p>We look forward to seeing you!</p><p>Best regards,<br/>Pizzeria Moschini</p>";
-                            await _emailService.SendEmailAsync(customer.Email, subject, body);
+                            await _emailSender.SendEmailAsync(customer.Email, subject, body);
                         }
 
                         TempData["SuccessMessage"] = "Your reservation has been successfully made! An email with the reservation details has been sent to your email address.";
@@ -370,7 +371,7 @@ namespace PizzeriaMoschini.Controllers
                                 // Send email
                                 var subject = "Reservation Updated - Pizzeria Moschini";
                                 var body = $"<p>Dear {customer.Name},</p><p>Your reservation has been updated to {reservation.ReservationDate.ToShortDateString()} at {reservation.TimeSlot}.</p><p>Number of Guests: {reservation.NumberOfGuests}</p><p>We look forward to seeing you!</p><p>Best regards,<br/>Pizzeria Moschini</p>";
-                                await _emailService.SendEmailAsync(customer.Email, subject, body);
+                                await _emailSender.SendEmailAsync(customer.Email, subject, body);
                             }
 
                             TempData["SuccessMessage"] = "Reservation updated successfully. An email with the updated reservation details has been sent to your email address.";
@@ -449,7 +450,7 @@ namespace PizzeriaMoschini.Controllers
                         // Send email
                         var subject = "Reservation Cancellation - Pizzeria Moschini";
                         var body = $"<p>Dear {customer.Name},</p><p>Your reservation for {reservation.ReservationDate.ToShortDateString()} at {reservation.TimeSlot} has been successfully cancelled.</p><p>We hope to see you in the future.</p><p>Best regards,<br/>Pizzeria Moschini</p>";
-                        await _emailService.SendEmailAsync(customer.Email, subject, body);
+                        await _emailSender.SendEmailAsync(customer.Email, subject, body);
                     }
 
                     TempData["SuccessMessage"] = "Reservation cancelled successfully! An email confirmation has been sent to your email address.";
@@ -462,6 +463,25 @@ namespace PizzeriaMoschini.Controllers
         private bool ReservationExists(int id)
         {
             return _context.Reservations.Any(e => e.ReservationID == id);
+        }
+
+        // Clear old reservations
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClearOldReservations()
+        {
+            // Get all reservations before today
+            var oldReservations = await _context.Reservations
+                .Where(r => r.ReservationDate < DateTime.Today)
+                .ToListAsync();
+
+            // Remove old reservations
+            _context.Reservations.RemoveRange(oldReservations);
+            await _context.SaveChangesAsync();
+
+            // Set success message
+            TempData["SuccessMessage"] = "Old reservations cleared successfully.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

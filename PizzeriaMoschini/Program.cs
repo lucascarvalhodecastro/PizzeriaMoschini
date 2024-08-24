@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using PizzeriaMoschini.Data;
 using PizzeriaMoschini.Services;
@@ -22,7 +23,7 @@ namespace PizzeriaMoschini
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
             // Configure Identity services with roles
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -30,7 +31,7 @@ namespace PizzeriaMoschini
             builder.Services.AddControllersWithViews();
 
             // Register the EmailService
-            builder.Services.AddSingleton<EmailService>();
+            builder.Services.AddTransient<IEmailSender, EmailService>();
 
             builder.Services.AddRazorPages();
 
@@ -63,6 +64,7 @@ namespace PizzeriaMoschini
             using (var scope = app.Services.CreateScope())
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
                 // Define roles to be created
                 var roles = new[] { "Admin", "Staff", "Customer" };
@@ -73,26 +75,28 @@ namespace PizzeriaMoschini
                     if (!await roleManager.RoleExistsAsync(role))
                         await roleManager.CreateAsync(new IdentityRole(role));
                 }
-            }
 
-            // Create a scope to resolve services
-            using (var scope = app.Services.CreateScope())
-            {
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+                // Define Admin credentials
+                string adminEmail = "admin@admin.com";
+                string adminPassword = "Test1234,";
 
-                string email = "admin@admin.com";
-                string password = "Test1234,";
-
-                // Check if the admin user exists, create if not
-                if (await userManager.FindByEmailAsync(email) == null)
+                // Check if Admin exists, create if not
+                if (await userManager.FindByEmailAsync(adminEmail) == null)
                 {
-                    var user = new IdentityUser();
-                    user.UserName = email;
-                    user.Email = email;
+                    var adminUser = new IdentityUser
+                    {
+                        UserName = adminEmail,
+                        Email = adminEmail,
+                        EmailConfirmed = true
+                    };
 
-                    await userManager.CreateAsync(user, password);
+                    var result = await userManager.CreateAsync(adminUser, adminPassword);
 
-                    await userManager.AddToRoleAsync(user, "Admin");
+                    // Add Admin to the role if creation is successful
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(adminUser, "Admin");
+                    }
                 }
             }
 

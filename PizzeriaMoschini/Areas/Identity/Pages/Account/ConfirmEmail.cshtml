@@ -1,0 +1,21 @@
+﻿@page
+@model ConfirmEmailModel
+
+@{
+    ViewData["Title"] = "Confirm Email";
+}
+
+<div>
+    <h2>Email confirmed</h2>
+</div>
+
+<div>
+    @if (Model != null)
+    {
+        <p>Your email address has been successfully confirmed. Thank you for verifying your email. You can now login and make your reservation.</p>
+    }
+    else
+    {
+        <p>Oops! There was an error confirming your email. Please try again or contact our support team for assistance.</p>
+    }
+</div>
