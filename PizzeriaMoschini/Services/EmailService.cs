@@ -41,7 +41,11 @@ namespace PizzeriaMoschini.Services
             using var smtp = new SmtpClient();
 
             await smtp.ConnectAsync(emailSettings["SmtpServer"], int.Parse(emailSettings["SmtpPort"]), MailKit.Security.SecureSocketOptions.StartTls);
-            await smtp.AuthenticateAsync(emailSettings["Username"], emailSettings["Password"]);
+
+            // Retrieve password from Azure environment variables
+            string emailPassword = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
+
+            await smtp.AuthenticateAsync(emailSettings["Username"], emailPassword);
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
         }

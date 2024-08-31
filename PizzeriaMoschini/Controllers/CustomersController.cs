@@ -74,7 +74,7 @@ namespace PizzeriaMoschini.Controllers
 
             if (user == null)
             {
-                // Redirect to login if user is not logged in
+                // Redirect to login if user is not logged-in
                 return Redirect("/Identity/Account/Login");
             }
 
@@ -109,11 +109,11 @@ namespace PizzeriaMoschini.Controllers
 
             if (user == null)
             {
-                // Redirect to login if user is not logged in
+                // Redirect to login if user is not logged-in
                 return Redirect("/Identity/Account/Login");
             }
 
-            // Associate Customer with logged in user
+            // Associate Customer with logged-in user
             customer.Email = user.Email;
 
             if (ModelState.IsValid)

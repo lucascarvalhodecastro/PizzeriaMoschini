@@ -20,6 +20,10 @@ namespace PizzeriaMoschini
 
             var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
 
+            // Retrieve database password from Azure environment variables
+            var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+            connectionString = connectionString.Replace("PASSWORD_PLACEHOLDER", dbPassword);
+
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
             // Configure Identity services with roles
@@ -76,9 +80,9 @@ namespace PizzeriaMoschini
                         await roleManager.CreateAsync(new IdentityRole(role));
                 }
 
-                // Define Admin credentials
-                string adminEmail = "admin@admin.com";
-                string adminPassword = "Test1234,";
+                // Define Admin credentials using Azure environment variables
+                string adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
+                string adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
 
                 // Check if Admin exists, create if not
                 if (await userManager.FindByEmailAsync(adminEmail) == null)

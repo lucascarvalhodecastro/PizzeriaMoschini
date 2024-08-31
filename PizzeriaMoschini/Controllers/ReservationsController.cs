@@ -38,11 +38,11 @@ namespace PizzeriaMoschini.Controllers
 
             if (user == null)
             {
-                // Redirect to login if user is not logged in
+                // Redirect to login if user is not logged-in
                 return Redirect("/Identity/Account/Login");
             }
 
-            // Get roles of logged in user
+            // Get roles of logged-in user
             var roles = await _userManager.GetRolesAsync(user);
 
             IQueryable<Reservation> reservations;
@@ -102,12 +102,12 @@ namespace PizzeriaMoschini.Controllers
         // GET: Reservations/Create
         public async Task<IActionResult> Create()
         {
-            // Get logged in user
+            // Get logged-in user
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
             {
-                // Redirect to login if user is not logged in
+                // Redirect to login if user is not logged-in
                 return Redirect("/Identity/Account/Login");
             }
 
@@ -169,7 +169,7 @@ namespace PizzeriaMoschini.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CustomerID,ReservationDate,TimeSlot,NumberOfGuests")] Reservation reservation)
         {
-            // Get logged in user
+            // Get logged-in user
             var user = await _userManager.GetUserAsync(User);
             var roles = await _userManager.GetRolesAsync(user);
             bool isAdminOrStaff = roles.Contains("Admin") || roles.Contains("Staff");
@@ -324,7 +324,7 @@ namespace PizzeriaMoschini.Controllers
                 }
             }
 
-            // Get logged in user
+            // Get logged-in user
             var user = await _userManager.GetUserAsync(User);
             var roles = await _userManager.GetRolesAsync(user);
             bool isAdminOrStaff = roles.Contains("Admin") || roles.Contains("Staff");
