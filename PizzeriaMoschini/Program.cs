@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using PizzeriaMoschini.Data;
 using PizzeriaMoschini.Services;
+using System.Globalization;
 
 namespace PizzeriaMoschini
 {
@@ -57,6 +59,15 @@ namespace PizzeriaMoschini
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            // Set the culture to use DD/MM/YYYY
+            var supportedCultures = new[] { new CultureInfo("en-IE") };
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture("en-IE"),
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures
+            });
 
             app.MapRazorPages();
 
