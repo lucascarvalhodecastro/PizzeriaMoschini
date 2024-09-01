@@ -35,13 +35,18 @@ namespace PizzeriaMoschini.Controllers
         [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> Index()
         {
-            // Get all Staff users
+            // Get all Staff and Admin users
             var staffRole = await _roleManager.FindByNameAsync("Staff");
+            var adminRole = await _roleManager.FindByNameAsync("Admin");
             var staffUsers = await _userManager.GetUsersInRoleAsync(staffRole.Name);
+            var adminUsers = await _userManager.GetUsersInRoleAsync(adminRole.Name);
 
-            // Order customers by name alphabetically
+            // Get the emails of all staff and admin users
+            var excludedEmails = staffUsers.Select(s => s.Email).Union(adminUsers.Select(a => a.Email));
+
+            // Order customers by name alphabetically and exclude staff and admin users
             var customers = await _context.Customers
-                .Where(c => !staffUsers.Select(s => s.Email).Contains(c.Email))
+                .Where(c => !excludedEmails.Contains(c.Email))
                 .OrderBy(c => c.Name)
                 .ToListAsync();
 
